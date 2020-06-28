@@ -1,43 +1,39 @@
-import React, {Component} from "react";
+import React, {useContext} from "react";
+import ListContext from "../context/ListContext";
 import "./Item.css";
 
-class Item extends Component {
+const Item = (props) => {
+    const {item} = props;
+    const {deleteItem, updateItemStatus} = useContext(ListContext)
 
-    handlePack = e => {
-        const {item, handlePack} = this.props
-        handlePack(item.id)
+    const handlePack = e => {
+        updateItemStatus(item.id)
     }
 
-    deleteItem = e => {
-        const {item, handleDelete} = this.props
-        handleDelete(item.id)
+    const handleDelete = e => {
+        deleteItem(item.id)
     }
 
-    render() {
-        const {item} = this.props;
-
-        return (
-            <li className="item-box">
-                <div className="form-check">
-                    <input
-                        className="form-check-input"
-                        type="checkbox"
-                        // defaultChecked={check}
-                        checked={item.packed}
-                        onChange={this.handlePack}
-                        id={item.id}
-                    />
-                    <label className="form-check-label" htmlFor={item.id}>
-                        {" "}
-                        {item.value}
-                    </label>
-                </div>
-                <button key={item.id} className="btn btn-secondary btn-sm" onClick={this.deleteItem}>
-                    Remove
-                </button>
-            </li>
-        );
-    }
+    return (
+        <li className="item-box">
+            <div className="form-check">
+                <input
+                    className="form-check-input"
+                    type="checkbox"
+                    checked={item.packed}
+                    onChange={handlePack}
+                    id={item.id}
+                />
+                <label className="form-check-label" htmlFor={item.id}>
+                    {" "}
+                    {item.value}
+                </label>
+            </div>
+            <button key={item.id} className="btn btn-secondary btn-sm" onClick={handleDelete}>
+                Remove
+            </button>
+        </li>
+    );
 }
 
 export default Item;

@@ -1,90 +1,84 @@
-import React, {Component} from "react";
+import React, {useState} from "react";
+import {generate as id} from "shortid";
+import ListContext from './context/ListContext';
 import NewItem from "./components/NewItem";
 import ListItems from "./components/ListItems";
-import {generate as id} from "shortid";
+import FilterProvider from "./components/FilterProvider";
+import Filter from "./components/Filter";
+import Title from "./components/Title";
 
 import {defaultState} from "./data";
 
-class App extends Component {
+const App = (props) => {
 
-    state = {
-        items: this.props.items
-    }
+    const [items, setItems] = useState(props.items);
 
-    addItem = value => {
-        let {items} = this.state;
 
-        if ( items.filter((item) =>
-            item.value.toLowerCase().includes(value.toLocaleLowerCase())).length )
+    const addItem = value => {
+        if (items.filter((item) =>
+            item.value.toLowerCase().includes(value.toLocaleLowerCase())).length)
             return;
-
-        items.push({
+        const newItems = items.concat({
             value: value,
             id: id(),
             packed: false
         })
-
-        this.setState({
-            items
-        })
+        setItems(newItems)
     }
 
-    deleteItem = id => {
-        const {items} = this.state;
+    const deleteItem = id => {
         const newItems = items.filter(i => i.id !== id)
-        this.setState({
-            items: newItems
-        })
+        setItems(newItems)
     }
 
-    unpackAll = () => {
-        let {items} = this.state;
+    const unpackAll = () => {
         const newItems = items.map(i => {
             if (i.packed)
                 i.packed = !i.packed
             return i
         })
-        this.setState({
-            items: newItems
-        })
+        setItems(newItems)
     }
 
-    updateItemStatus = id => {
-        const {items} = this.state;
+    const updateItemStatus = id => {
         const newItems = items.map(i => {
             if (i.id === id)
                 i.packed = !i.packed
             return i
         })
-        this.setState({
-            items: newItems
-        })
+        setItems(newItems)
     }
 
-    render() {
-        const {items} = this.state
-        const itemsPacked = items.filter(item => item.packed)
-        const itemsUnpacked = items.filter(item => !item.packed)
-        return (
-            <div className="container py-3">
-                <NewItem handlerSubmit={this.addItem}/>
+    const itemsPacked = items.filter(item => item.packed)
+    const itemsUnpacked = items.filter(item => !item.packed)
+
+    return (
+        <div className="container py-3">
+            <ListContext.Provider value={{addItem, deleteItem, updateItemStatus}}>
+                <NewItem/>
                 <div className="row">
                     <div className="col-md-5">
-                        <ListItems title="Unpacked Items" handlePack={this.updateItemStatus}
-                                   handleDelete={this.deleteItem}
-                                   items={itemsUnpacked}/>
+                        <FilterProvider>
+                            <Title className="mb-3">Unpacked Items</Title>
+                            <Filter/>
+                            <ListItems items={itemsUnpacked}/>
+                        </FilterProvider>
                     </div>
                     <div className="offset-md-2 col-md-5">
-                        <ListItems title="Packed Items" handlePack={this.updateItemStatus} handleDelete={this.deleteItem}
-                                   items={itemsPacked}/>
-                        <button className="btn btn-danger btn-lg btn-block" onClick={this.unpackAll}>
+                        <FilterProvider>
+                            <Title className="mb-3">Packed Items</Title>
+                            <Filter/>
+                            <ListItems items={itemsPacked}/>
+                        </FilterProvider>
+                        <button className="btn btn-danger btn-lg btn-block" onClick={unpackAll}>
                             Mark All As Unpacked
                         </button>
                     </div>
                 </div>
-            </div>
-        );
-    }
+            </ListContext.Provider>
+        </div>
+    );
+
 }
 
 App.defaultProps = {items: defaultState};

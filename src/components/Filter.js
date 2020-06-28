@@ -1,18 +1,19 @@
-import React, {Component} from 'react';
+import React, {useContext} from 'react';
+import FilterContext from "../context/FilterContext";
 
-class Filter extends Component {
+const Filter = (props) => {
+    const {filter, onChange} = useContext(FilterContext)
 
-    render() {
-        return (
-            <div className="mb-3">
-                <input type="text"
-                       className="form-control"
-                       value={this.props.filter}
-                       onChange={this.props.onChange}
-                />
-            </div>
-        );
-    }
+    return (
+        <div className="mb-3">
+            <input type="text"
+                   className="form-control"
+                   value={filter}
+                   onChange={onChange}
+            />
+        </div>
+    );
+
 }
 
 export default Filter;
